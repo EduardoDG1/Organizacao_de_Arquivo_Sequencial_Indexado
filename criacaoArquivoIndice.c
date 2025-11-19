@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <math.h>
-
-#include "structs.c"
-
-#define BLOCKSIZE 4096
+#include "structs.h"
 
 void criarArquivoIndicePedidos(int n, FILE *f)
 {
