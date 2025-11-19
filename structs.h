@@ -1,3 +1,6 @@
+#ifndef STRUCTS_H
+#define STRUCTS_H
+
 #include <stdbool.h>
 
 #define SIZECATEGORYANDGEM 20
@@ -7,6 +10,8 @@
 #define SIZEDATE 11
 #define SIZETIME 9
 #define MAXITENSORDER 26
+
+#define BLOCKSIZE 4096
 
 typedef struct
 {
@@ -43,3 +48,30 @@ typedef struct
     unsigned long int deslocamento;
     int numeroRegistrosNoBloco;
 }INDICE;
+
+typedef struct bplusnodo
+{
+    int numeroValores;
+    int maxChaves;
+    unsigned long int *chaves;
+    unsigned long int *desloc;
+    struct bplusnodo **filhos;
+    struct bplusnodo *prox;
+    struct bplusnodo *pai;
+    bool folha;
+}BPLUSNODO;
+
+typedef struct nodoTabelaHash
+{
+    ORDER order;
+    struct nodoTabelaHash *prox;
+}NODOTABELAHASH;
+
+typedef struct 
+{
+    int numeroPosicoes;
+    NODOTABELAHASH **vetorPosicoes;
+}TABELAHASH;
+
+
+#endif

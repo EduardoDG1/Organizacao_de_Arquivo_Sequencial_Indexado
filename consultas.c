@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "criacaoDataFile.c"
 
 void mostrarPedidos(FILE *f){
