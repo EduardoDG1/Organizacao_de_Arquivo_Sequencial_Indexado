@@ -5,24 +5,27 @@
 
 
 
-int calculaHash(char *horario, int posicoesTabelaHash)
+int calculaHash(char *data, char *horario, int posicoesTabelaHash)
 {
-    int somaHorario = 0, i;
+    int somaDataHorario = 0, i;
+    for (i = 0; i < SIZEDATE; i++)
+    {
+        somaDataHorario += data[i]*i;
+    }
     for (i = 0; i < SIZETIME; i++)
     {
-        somaHorario += horario[i]*i;
+        somaDataHorario += horario[i]*i;
     }
-    
-    return somaHorario%posicoesTabelaHash;
+    return somaDataHorario%posicoesTabelaHash;
 }
 
-ORDER pesquisaTabelaHash(char *horario, TABELAHASH tabelaHash)
+ORDER pesquisaTabelaHash(char *data, char *horario, TABELAHASH tabelaHash)
 {
-    int pos = calculaHash(horario,tabelaHash.numeroPosicoes);
+    int pos = calculaHash(data,horario,tabelaHash.numeroPosicoes);
     NODOTABELAHASH *aux = tabelaHash.vetorPosicoes[pos];
     while(aux)
     {
-        if(!strcmp(horario,aux->order.time) && !aux->order.excluido)
+        if(!strcmp(data,aux->order.date) && !strcmp(horario,aux->order.time) && !aux->order.excluido)
         {
             return aux->order;
         }
@@ -66,15 +69,11 @@ TABELAHASH criarTabelaHashArquivoCompras(FILE *f)
     while(fread(&auxOrder,sizeof(ORDER),1,f))
     {
         NODOTABELAHASH *nodo = criarNodoTabelaHash(auxOrder);
-        int pos = calculaHash(auxOrder.time,nblocos);
+        int pos = calculaHash(auxOrder.date,auxOrder.time,nblocos);
         if(tabelaHash.vetorPosicoes[pos])
         {   
-            NODOTABELAHASH *aux = tabelaHash.vetorPosicoes[pos];
-            while(aux)
-            {
-                aux = aux->prox;
-            }
-            aux = nodo;
+            nodo->prox = tabelaHash.vetorPosicoes[pos];
+            tabelaHash.vetorPosicoes[pos] = nodo;
         }
         else
         {
