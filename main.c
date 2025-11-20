@@ -98,7 +98,7 @@ int main()
     //Consultar pedido por tabela hash
     // ORDER order;
     // order.id = 0; 
-    // order = pesquisaTabelaHash("0",tabelaHashPedidos);
+    // order = pesquisaTabelaHash("2021-12-01","09:59:07",tabelaHashPedidos);
     // if(order.id != 0)
     // {
     //     printf("%lu\n",order.id); 
