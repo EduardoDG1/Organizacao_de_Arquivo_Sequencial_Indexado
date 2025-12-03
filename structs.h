@@ -63,7 +63,7 @@ typedef struct bplusnodo
 
 typedef struct nodoTabelaHash
 {
-    ORDER order;
+    unsigned long int desloc;
     struct nodoTabelaHash *prox;
 }NODOTABELAHASH;
 

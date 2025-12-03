@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 #include "criacaoDataFile.c"
 
 void mostrarPedidos(FILE *f){
@@ -63,8 +64,7 @@ void mostrarJoiasComExcluidos(FILE *f){
     }
 }
 
-ORDER pesquisaBinariaOrder(FILE *f, unsigned long int cod){
-    
+ORDER pesquisaBinariaOrder(FILE *f, unsigned long int cod, clock_t *t){
     FILE *infoInd = fopen("orderIndInfo.txt","r");
     if(!infoInd)
     {
@@ -76,6 +76,7 @@ ORDER pesquisaBinariaOrder(FILE *f, unsigned long int cod){
 
     fscanf(infoInd,"Quantidade de niveis: %d\n",&qtdNiveis);
 
+    *t = clock();
     char nomeArq[30];
     
     int inicio,fim;
@@ -140,15 +141,16 @@ ORDER pesquisaBinariaOrder(FILE *f, unsigned long int cod){
         else
         {
             if(!order.excluido)
+                *t = clock() - *t;
                 return order;
         }
     }
-
+    *t = clock() - *t;
     printf("Pedido nao encontrado!\n");
 }
 
 
-JOIA pesquisaBinariaJewelry(FILE *f, unsigned long int cod){
+JOIA pesquisaBinariaJewelry(FILE *f, unsigned long int cod, clock_t *t){
     
     FILE *infoInd = fopen("jewelryIndInfo.txt","r");
     if(!infoInd)
@@ -161,8 +163,9 @@ JOIA pesquisaBinariaJewelry(FILE *f, unsigned long int cod){
 
     fscanf(infoInd,"Quantidade de niveis: %d\n",&qtdNiveis);
 
+    *t = clock();
+
     char nomeArq[30];
-    
     int inicio,fim;
     unsigned long int desloc = 0;
 
@@ -225,15 +228,18 @@ JOIA pesquisaBinariaJewelry(FILE *f, unsigned long int cod){
         else
         {
             if(!joia.excluido)
+                *t = clock() - *t;
                 return joia;
         }
     }
+    *t = clock() - *t;
     printf("Joia nao encontrada!\n");
 }
 
 double calculaTotalPedido(FILE *fOrder, FILE *fJewelry, unsigned long int cod)
 {
-    ORDER order = pesquisaBinariaOrder(fOrder,cod);
+    clock_t t;
+    ORDER order = pesquisaBinariaOrder(fOrder,cod,&t);
 
     int i;
     double total = 0;
@@ -243,7 +249,7 @@ double calculaTotalPedido(FILE *fOrder, FILE *fJewelry, unsigned long int cod)
         for (i = 0; i < order.countItems; i++)
         {
             unsigned long int codJoia = order.items[i];
-            JOIA joia = pesquisaBinariaJewelry(fJewelry,codJoia);
+            JOIA joia = pesquisaBinariaJewelry(fJewelry,codJoia,&t);
             total += joia.price;
         }
         return total;
@@ -263,7 +269,8 @@ double calculaTotalDosPedidos(FILE *fOrder, FILE *fJewelry)
         if(!order.excluido){
             for (i = 0; i < order.countItems; i++)
             {
-                JOIA joia = pesquisaBinariaJewelry(fJewelry,order.items[i]);
+                clock_t t;
+                JOIA joia = pesquisaBinariaJewelry(fJewelry,order.items[i],&t);
                 total += joia.price;
             }
         }

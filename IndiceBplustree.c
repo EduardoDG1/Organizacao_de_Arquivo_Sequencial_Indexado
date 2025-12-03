@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 #include "structs.h"
 
 BPLUSNODO* criaNodo(bool folha, unsigned long int sizeRegistro)
@@ -189,8 +190,10 @@ void imprimirFolhas(BPLUSNODO *raiz)
     }
 }
 
-BPLUSNODO* criarIndiceEmMemoriaArquivoJoias(FILE *f)
+BPLUSNODO* criarIndiceEmMemoriaArquivoJoias(FILE *f, clock_t *t)
 {
+    *t = clock();
+
     BPLUSNODO *raiz = NULL;
 
     unsigned long int desloc = sizeof(HEADER);
@@ -204,11 +207,60 @@ BPLUSNODO* criarIndiceEmMemoriaArquivoJoias(FILE *f)
         desloc += sizeof(JOIA);
         raiz = voltarParaRaiz(raiz);
     }
+
+    *t = clock() - *t;
+
     return raiz;
 }
 
-JOIA pesquisaComIndiceEmMemoria(BPLUSNODO *raiz,FILE *f, unsigned long int chave)
+JOIA pesquisaComIndiceEmMemoria(BPLUSNODO *raiz,FILE *f, unsigned long int chave, clock_t *t)
 {
+    *t = clock();
+
+    JOIA joia;
+    joia.id = 0;
+
+    int i;
+    if(raiz->folha)
+    {
+        unsigned long int deslocAux;
+        for (i = 0; i < raiz->numeroValores; i++)
+        {
+            if(raiz->chaves[i] == chave)
+            {
+                fseek(f,raiz->desloc[i],SEEK_SET);
+                JOIA joia;
+                fread(&joia,sizeof(JOIA),1,f);
+                if(joia.excluido)
+                {
+                    joia.id = 0;
+                }
+                *t = clock() - *t;
+                return joia;
+            }
+        }
+        return joia;
+    }
+    else
+    {
+        for (i = 0; i < raiz->numeroValores; i++)
+        {
+            if(raiz->chaves[i] > chave)
+            {
+                joia = pesquisaComIndiceEmMemoria(raiz->filhos[i],f,chave,t);
+                *t = clock() - *t;
+                return joia;
+            }
+        }
+        joia = pesquisaComIndiceEmMemoria(raiz->filhos[i],f,chave,t);
+        *t = clock() - *t;
+        return joia;
+    }   
+}
+bool remocaoComIndiceEmMemoria(BPLUSNODO *raiz,FILE *f, unsigned long int chave, clock_t *t)
+{
+    *t = clock();
+
     int i;
     if(raiz->folha)
     {
@@ -222,11 +274,17 @@ JOIA pesquisaComIndiceEmMemoria(BPLUSNODO *raiz,FILE *f, unsigned long int chave
                 fread(&joia,sizeof(JOIA),1,f);
                 if(!joia.excluido)
                 {
-                    return joia;
+                    joia.excluido = true;
+                    fseek(f,-sizeof(JOIA),SEEK_CUR);
+                    fwrite(&joia,sizeof(JOIA),1,f);
+                    *t = clock() - *t;
+                    return true;
                 }
-                return;
+                *t = clock() - *t;
+                return false;
             }
         }
+        return false;
     }
     else
     {
@@ -234,24 +292,14 @@ JOIA pesquisaComIndiceEmMemoria(BPLUSNODO *raiz,FILE *f, unsigned long int chave
         {
             if(raiz->chaves[i] > chave)
             {
-                JOIA joia;
-                joia.id = 0;
-                joia = pesquisaComIndiceEmMemoria(raiz->filhos[i],f,chave);
-                if(joia.id != 0)
-                {
-                    return joia;
-                }
-                return;
+                bool value = remocaoComIndiceEmMemoria(raiz->filhos[i],f,chave,t);
+                *t = clock() - *t;
+                return value;
             }
         }
-        JOIA joia;
-        joia.id = 0;
-        joia = pesquisaComIndiceEmMemoria(raiz->filhos[i],f,chave);
-        if(joia.id != 0)
-        {
-            return joia;
-        }
-        return;
+        bool value = remocaoComIndiceEmMemoria(raiz->filhos[i],f,chave,t);
+        *t = clock() - *t;
+        return value;
     }   
-
+    
 }
