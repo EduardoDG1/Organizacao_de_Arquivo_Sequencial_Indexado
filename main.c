@@ -1,5 +1,6 @@
 #include "structs.h"
 #include "operacoes.c"
+#include "security.c"
 
 int main()
 {
@@ -88,7 +89,6 @@ int main()
     //PARTE 2 INDICE EM MEMORIA E TABELA HASH
 
     //Indice em Arvore B+
-
     // BPLUSNODO *raiz = criarIndiceEmMemoriaArquivoJoias(fJewelry, &t);
     // printf("Tempo de criação do indice em Árvore B+: %fs\n\n\n", ((double)t)/CLOCKS_PER_SEC);
 
@@ -299,6 +299,24 @@ int main()
     // remocaoOrder(fOrder,2719022379232658075,&t);
     // printf("Tempo de execucao remocao5 (arquivo): %fs\n", ((double)t)/CLOCKS_PER_SEC);
 
+    // Criptografia
+    // char palavra[256];
+    // printf("Adicione um password: ");
+    // scanf("%255s", palavra);
+    // char *password = strdup(palavra);
+    // if(!password) exit(0);
+    
+    // printf("Joias criptografadas:\n");
+    // securityJoias(fJewelry, password, true);
+    //printf("\n\n")
+    // printf("Joias descriptografadas:\n");
+    // securityJoias(fJewelry, password, false);
+    // printf("Pedidos criptografados:\n");
+    // securityPedidos(fOrder, password, true);
+    //printf("\n\n")
+    // printf("Pedidos descriptografados:\n");
+    // securityPedidos(fOrder, password, false);
+    // free(password);
 
     fclose(fOrder);
     fclose(fJewelry);
