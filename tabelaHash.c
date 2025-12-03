@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "structs.h"
-
 
 
 int calculaHash(char *data, char *horario, int posicoesTabelaHash)
@@ -19,33 +19,66 @@ int calculaHash(char *data, char *horario, int posicoesTabelaHash)
     return somaDataHorario%posicoesTabelaHash;
 }
 
-ORDER pesquisaTabelaHash(char *data, char *horario, TABELAHASH tabelaHash)
+ORDER pesquisaTabelaHash(FILE *f,char *data, char *horario, TABELAHASH tabelaHash, clock_t *t)
 {
+    *t = clock();
     int pos = calculaHash(data,horario,tabelaHash.numeroPosicoes);
     NODOTABELAHASH *aux = tabelaHash.vetorPosicoes[pos];
     while(aux)
     {
-        if(!strcmp(data,aux->order.date) && !strcmp(horario,aux->order.time) && !aux->order.excluido)
+        ORDER orderAux;
+        fseek(f,aux->desloc,SEEK_SET);
+        fread(&orderAux,sizeof(ORDER),1,f);
+        if(!strcmp(data,orderAux.date) && !strcmp(horario,orderAux.time) && !orderAux.excluido)
         {
-            return aux->order;
+            *t = clock() - *t;
+            return orderAux;
         }
         aux = aux->prox;
     }
+    *t = clock() - *t;
     printf("Pedido nao encontrado!\n");
 }
 
-NODOTABELAHASH *criarNodoTabelaHash(ORDER order)
+void remocaoTabelaHash(FILE *f,char *data, char *horario, TABELAHASH tabelaHash, clock_t *t)
+{
+    *t = clock();
+    int pos = calculaHash(data,horario,tabelaHash.numeroPosicoes);
+    NODOTABELAHASH *aux = tabelaHash.vetorPosicoes[pos];
+    while(aux)
+    {
+        ORDER orderAux;
+        fseek(f,aux->desloc,SEEK_SET);
+        fread(&orderAux,sizeof(ORDER),1,f);
+        if(!strcmp(data,orderAux.date) && !strcmp(horario,orderAux.time) && !orderAux.excluido)
+        {
+            orderAux.excluido = 1;
+            fseek(f,-sizeof(ORDER),SEEK_CUR);
+            fwrite(&orderAux,sizeof(ORDER),1,f);
+            printf("Pedido removido com sucesso!\n");
+            *t = clock() - *t;
+            return;
+        }
+        aux = aux->prox;
+    }
+    *t = clock() - *t;
+    printf("Pedido nao encontrado!\n");
+}
+
+NODOTABELAHASH *criarNodoTabelaHash(unsigned long int desloc)
 {
     NODOTABELAHASH *novoNodo = (NODOTABELAHASH *)malloc(sizeof(NODOTABELAHASH));
 
-    novoNodo->order = order;
+    novoNodo->desloc = desloc;
     novoNodo->prox = NULL;
 
     return novoNodo;
 }
 
-TABELAHASH criarTabelaHashArquivoCompras(FILE *f)
+TABELAHASH criarTabelaHashArquivoCompras(FILE *f, clock_t *t)
 {
+    *t = clock();
+
     fseek(f,0,SEEK_SET);
 
     HEADER header;
@@ -66,9 +99,10 @@ TABELAHASH criarTabelaHashArquivoCompras(FILE *f)
     }
     
     ORDER auxOrder;
+    unsigned long int desloc = sizeof(HEADER);
     while(fread(&auxOrder,sizeof(ORDER),1,f))
     {
-        NODOTABELAHASH *nodo = criarNodoTabelaHash(auxOrder);
+        NODOTABELAHASH *nodo = criarNodoTabelaHash(desloc);
         int pos = calculaHash(auxOrder.date,auxOrder.time,nblocos);
         if(tabelaHash.vetorPosicoes[pos])
         {   
@@ -79,7 +113,9 @@ TABELAHASH criarTabelaHashArquivoCompras(FILE *f)
         {
             tabelaHash.vetorPosicoes[pos] = nodo;
         }
+        desloc += sizeof(ORDER);
     }
 
+    *t = clock() - *t;
     return tabelaHash;
 }

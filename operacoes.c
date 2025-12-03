@@ -28,7 +28,7 @@ void insercaoOrder(FILE *f, ORDER pedidoInserido)
     printf("Insercao realizada com sucesso!\n");
 }
 
-void remocaoOrder(FILE *f, unsigned long int cod)
+void remocaoOrder(FILE *f, unsigned long int cod, clock_t *t)
 {  
     FILE *infoInd = fopen("orderIndInfo.txt","r");
     if(!infoInd)
@@ -38,11 +38,12 @@ void remocaoOrder(FILE *f, unsigned long int cod)
     }
     
     int qtdNiveis, qtd = 1, i;
-
+    
     fscanf(infoInd,"Quantidade de niveis: %d\n",&qtdNiveis);
+    
+    *t = clock();
 
     char nomeArq[30];
-    
     int inicio,fim;
     unsigned long int desloc = 0;
 
@@ -114,10 +115,13 @@ void remocaoOrder(FILE *f, unsigned long int cod)
             fwrite(&header,sizeof(HEADER),1,f);
 
             printf("Pedido removido com sucesso!\n");
+                
+            *t = clock() - *t;
             return;
         }
     }
-
+        
+    *t = clock() - *t;
     printf("Pedido nao encontrado!\n");
 }
 
@@ -147,7 +151,7 @@ void insercaoJewelry(FILE *f, JOIA joiaInserida)
     printf("Insercao realizada com sucesso!\n");
 }
 
-void remocaoJewelry(FILE *f, unsigned long int cod)
+void remocaoJewelry(FILE *f, unsigned long int cod, clock_t *t)
 {  
     FILE *infoInd = fopen("jewelryIndInfo.txt","r");
     if(!infoInd)
@@ -160,8 +164,9 @@ void remocaoJewelry(FILE *f, unsigned long int cod)
 
     fscanf(infoInd,"Quantidade de niveis: %d\n",&qtdNiveis);
 
-    char nomeArq[30];
-    
+        
+    *t = clock();
+    char nomeArq[30];   
     int inicio,fim;
     unsigned long int desloc = 0;
 
@@ -233,10 +238,13 @@ void remocaoJewelry(FILE *f, unsigned long int cod)
             fwrite(&header,sizeof(HEADER),1,f);
 
             printf("Joia removida com sucesso!\n");
+                
+            *t = clock() - *t;
             return;
         }
     }
     printf("Joia nao encontrada!\n");
+    *t = clock() - *t;
 }
 
 void reorganizacaoArquivoOrder(FILE *f)
