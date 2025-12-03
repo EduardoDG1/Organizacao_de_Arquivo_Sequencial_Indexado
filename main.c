@@ -1,8 +1,6 @@
-#include <time.h>
-#include "operacoes.c"
-#include "IndiceBplustree.c"
-#include "tabelaHash.c"
 #include "structs.h"
+#include "operacoes.c"
+#include "security.c"
 
 int main()
 {
@@ -90,6 +88,7 @@ int main()
     
     //PARTE 2 INDICE EM MEMORIA E TABELA HASH
 
+    //Indice em Arvore B+
     // BPLUSNODO *raiz = criarIndiceEmMemoriaArquivoJoias(fJewelry, &t);
     // printf("Tempo de criação do indice em Árvore B+: %fs\n\n\n", ((double)t)/CLOCKS_PER_SEC);
 
@@ -143,6 +142,18 @@ int main()
     // printf("%lu\n",joia.id);
     // printf("Tempo de execucao consulta5 (arquivo): %fs\n", ((double)t)/CLOCKS_PER_SEC);
 
+    //Inserção
+    // JOIA joia;
+    // strcpy(joia.category ,"teste");
+    // strcpy(joia.mainColor, "teste");
+    // strcpy(joia.mainMetal ,"teste");
+    // strcpy(joia.mainGem, "teste");
+    // insercaoJewelry(fJewelry,joia,&raiz);
+    // raiz = voltarParaRaiz(raiz);
+    // joia = pesquisaComIndiceEmMemoria(raiz,fJewelry,substituir_pelo_id_gerado,&t);
+    // joia.id != 0 ? printf("%lu\n",joia.id) : printf("Joia nao encontrada\n");
+    // printf("Tempo de execucao consulta1 (memoria): %fs\n", ((double)t)/CLOCKS_PER_SEC);
+    // raiz = voltarParaRaiz(raiz);
 
     //Remocoes com tempo de execucao em memoria
     //Remocao1
@@ -178,8 +189,10 @@ int main()
     // remocaoJewelry(fJewelry,2541962442884252323,&t);
     // printf("Tempo de execucao remocao5 (arquivo): %fs\n\n\n", ((double)t)/CLOCKS_PER_SEC);
 
-    TABELAHASH tabelaHashPedidos = criarTabelaHashArquivoCompras(fOrder, &t);
-    printf("Tempo de criação do indice em tabela hash: %f\n\n\n", ((double)t)/CLOCKS_PER_SEC);
+
+    //Tabela Hash
+    // TABELAHASH tabelaHashPedidos = criarTabelaHashArquivoCompras(fOrder, &t);
+    // printf("Tempo de criação do indice em tabela hash: %f\n\n\n", ((double)t)/CLOCKS_PER_SEC);
     //Consultas com tempo de execucao em memoria
     // Consulta1
     // ORDER order;
@@ -240,6 +253,18 @@ int main()
     // printf("%lu\n",order.id);
     // printf("Tempo de execucao consulta5 (arquivo): %fs\n", ((double)t)/CLOCKS_PER_SEC);
 
+    //Inserção
+    // ORDER pedido;
+    // pedido.countItems = 0;
+    // strcpy(pedido.date,"2025-12-03");
+    // strcpy(pedido.time, "15:00:00");
+    // insercaoOrder(fOrder,pedido,&tabelaHashPedidos);
+    // pedido = pesquisaTabelaHash(fOrder,"2025-12-03","15:00:00",tabelaHashPedidos,&t);
+    // if(pedido.id != 0)
+    // {
+    //     printf("%lu\n",pedido.id); 
+    // }
+
     //Remocoes com tempo de execucao em memoria
     //Remocao1
     // remocaoTabelaHash(fOrder,"2021-12-01","09:47:37",tabelaHashPedidos,&t);
@@ -274,6 +299,24 @@ int main()
     // remocaoOrder(fOrder,2719022379232658075,&t);
     // printf("Tempo de execucao remocao5 (arquivo): %fs\n", ((double)t)/CLOCKS_PER_SEC);
 
+    // Criptografia
+    // char palavra[256];
+    // printf("Adicione um password: ");
+    // scanf("%255s", palavra);
+    // char *password = strdup(palavra);
+    // if(!password) exit(0);
+    
+    // printf("Joias criptografadas:\n");
+    // securityJoias(fJewelry, password, true);
+    //printf("\n\n")
+    // printf("Joias descriptografadas:\n");
+    // securityJoias(fJewelry, password, false);
+    // printf("Pedidos criptografados:\n");
+    // securityPedidos(fOrder, password, true);
+    //printf("\n\n")
+    // printf("Pedidos descriptografados:\n");
+    // securityPedidos(fOrder, password, false);
+    // free(password);
 
     fclose(fOrder);
     fclose(fJewelry);

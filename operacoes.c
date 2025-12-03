@@ -1,8 +1,10 @@
 #include <stdio.h>
 
 #include "consultas.c"
+#include "IndiceBplustree.c"
+#include "tabelaHash.c"
 
-void insercaoOrder(FILE *f, ORDER pedidoInserido)
+void insercaoOrder(FILE *f, ORDER pedidoInserido, TABELAHASH *tabela)
 {
     fseek(f,0,SEEK_SET);
     HEADER headerArq;
@@ -24,6 +26,10 @@ void insercaoOrder(FILE *f, ORDER pedidoInserido)
 
     fseek(f,0,SEEK_SET);
     fwrite(&headerArq,sizeof(HEADER),1,f);
+
+    deslocAreaExtensao += sizeof(ORDER);
+
+    *tabela = inserirTabelaHash(f,pedidoInserido.date,pedidoInserido.time,deslocAreaExtensao,*tabela);
 
     printf("Insercao realizada com sucesso!\n");
 }
@@ -125,14 +131,14 @@ void remocaoOrder(FILE *f, unsigned long int cod, clock_t *t)
     printf("Pedido nao encontrado!\n");
 }
 
-void insercaoJewelry(FILE *f, JOIA joiaInserida)
+void insercaoJewelry(FILE *f, JOIA joiaInserida, BPLUSNODO **raiz)
 {
     fseek(f,0,SEEK_SET);
     HEADER headerArq;
     fread(&headerArq,sizeof(HEADER),1,f);
 
     unsigned long int deslocAreaExtensao = headerArq.numeroRegistros*sizeof(JOIA)+sizeof(HEADER);
-    
+
     JOIA ultimo;
 
     fseek(f,deslocAreaExtensao-sizeof(JOIA),SEEK_SET);
@@ -147,6 +153,9 @@ void insercaoJewelry(FILE *f, JOIA joiaInserida)
 
     fseek(f,0,SEEK_SET);
     fwrite(&headerArq,sizeof(HEADER),1,f);
+
+    deslocAreaExtensao += sizeof(JOIA);
+    *raiz = inserirValor(*raiz,joiaInserida.id,deslocAreaExtensao,sizeof(JOIA));
 
     printf("Insercao realizada com sucesso!\n");
 }
