@@ -75,6 +75,24 @@ NODOTABELAHASH *criarNodoTabelaHash(unsigned long int desloc)
     return novoNodo;
 }
 
+TABELAHASH inserirTabelaHash(FILE *f,char *data, char *horario, unsigned long int desloc, TABELAHASH tabelaHash)
+{
+        NODOTABELAHASH *nodo = criarNodoTabelaHash(desloc);
+        int pos = calculaHash(data,horario,tabelaHash.numeroPosicoes);
+        if(tabelaHash.vetorPosicoes[pos])
+        {   
+            nodo->prox = tabelaHash.vetorPosicoes[pos];
+            tabelaHash.vetorPosicoes[pos] = nodo;
+        }
+        else
+        {
+            tabelaHash.vetorPosicoes[pos] = nodo;
+        }
+        desloc += sizeof(ORDER);
+
+        return tabelaHash;
+}
+
 TABELAHASH criarTabelaHashArquivoCompras(FILE *f, clock_t *t)
 {
     *t = clock();
@@ -102,17 +120,7 @@ TABELAHASH criarTabelaHashArquivoCompras(FILE *f, clock_t *t)
     unsigned long int desloc = sizeof(HEADER);
     while(fread(&auxOrder,sizeof(ORDER),1,f))
     {
-        NODOTABELAHASH *nodo = criarNodoTabelaHash(desloc);
-        int pos = calculaHash(auxOrder.date,auxOrder.time,nblocos);
-        if(tabelaHash.vetorPosicoes[pos])
-        {   
-            nodo->prox = tabelaHash.vetorPosicoes[pos];
-            tabelaHash.vetorPosicoes[pos] = nodo;
-        }
-        else
-        {
-            tabelaHash.vetorPosicoes[pos] = nodo;
-        }
+        tabelaHash = inserirTabelaHash(f,auxOrder.date,auxOrder.time,desloc,tabelaHash);
         desloc += sizeof(ORDER);
     }
 
